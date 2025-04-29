@@ -167,12 +167,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cd06cb02b7b8bb4cb5a589d15d76c49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  borderColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 1
-  borderWidth: 5
 --- !u!1 &880132390
 GameObject:
   m_ObjectHideFlags: 0
@@ -507,7 +501,8 @@ MonoBehaviour:
   pathTile: {fileID: 2414904545064283792, guid: f7c275aa7aebfbe43ad3219077a4dac7, type: 3}
   grassTile: {fileID: 9119526668327078243, guid: 2632b7c1089c07b4bac2cc230efb7047, type: 3}
   waterTile: {fileID: -5124154405338553937, guid: b927ceac1eedc0041b8db0bcf349b3a6, type: 3}
-  treeTile: {fileID: 4521563484188885572, guid: 93ddfae3617645742b54331cd81cea55, type: 3}
+  wideGrassTile: {fileID: 4521563484188885572, guid: 93ddfae3617645742b54331cd81cea55, type: 3}
+  treesTile: {fileID: 2339906325228301463, guid: 5f6d868893565c045b9ec4b5ecbafcd1, type: 3}
   width: 20
   height: 20
 --- !u!4 &2023131223

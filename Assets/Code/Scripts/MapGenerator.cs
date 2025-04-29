@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-
+enum MapObj {Grass, Water, WideGrass, Path, Trees}
 public class MapGenerator : MonoBehaviour 
 {
     
@@ -18,10 +18,10 @@ public class MapGenerator : MonoBehaviour
     {
         int[][] field = GenerateField();
         GeneratePath(field);
-        GenerateLakes(field, 10);    // Генерация озёр
-        GenerateWideGrass(field, 0.1f); // Генерация деревьев
+        GenerateMapObjects(field, MapObj.Water, 40);
+        GenerateMapObjects(field, MapObj.WideGrass, 40);
+        GenerateMapObjects(field, MapObj.Trees, 40);
         GenerateAccess(field);
-        GenerateTrees(field, 20);
         DrawField(field);
     }
 
@@ -60,16 +60,19 @@ public class MapGenerator : MonoBehaviour
                         tile.AddComponent<SpriteRenderer>().sprite = pathTile;
                         break;
                     case 4:
+                        tile = new GameObject($"Grass_Tile_{x}_{y}");
+                        tile.AddComponent<SpriteRenderer>().sprite = grassTile;
+
+                        GameObject tree = new GameObject($"Trees_Tile_{x}_{y}");
+                        tree.AddComponent<SpriteRenderer>().sprite = treesTile;
+                        tree.GetComponent<SpriteRenderer>().sortingOrder = -(x + y) + 1;
+                        tree.transform.position = new Vector2(isoX, isoY + 0.3f);
+                        break;
+                    case 5:
                         tile = new GameObject($"Access_Tile_{x}_{y}");
                         tile.AddComponent<SpriteRenderer>().sprite = grassTile;
-                        tile.GetComponent<SpriteRenderer>().color = Color.yellow;
+                        tile.GetComponent<SpriteRenderer>().color = new Color(0.7f, 0.7f, 0.7f);
                         break;
-
-                    case 5:
-                        tile = new GameObject($"Trees_Tile_{x}_{y}");
-                        tile.AddComponent<SpriteRenderer>().sprite = treesTile;
-                        break;
-
                     default:
                     case 0:
                         tile = new GameObject($"Grass_Tile_{x}_{y}");
@@ -125,35 +128,19 @@ void GeneratePath(int[][] field)
     }
 }
 
-    
-    void GenerateLakes(int[][] field, int numberOfLakes)
-    {
-        for (int i = 0; i < numberOfLakes; i++)
-        {
-            int lakeX = UnityEngine.Random.Range(0, field.Length);
-            int lakeY = UnityEngine.Random.Range(0, field[0].Length);
+    void GenerateMapObjects(int[][] field, MapObj obj, int numberOfObj){
 
-            // Проверяем, чтобы озеро не накладывалось на путь или другие объекты
-            if (field[lakeX][lakeY] == 0) 
+        for (int i = 0; i < numberOfObj; i++)
+        {
+            int objX = UnityEngine.Random.Range(0, field.Length);
+            int objY = UnityEngine.Random.Range(0, field[0].Length);
+
+            if (field[objX][objY] == 0) 
             {
-                field[lakeX][lakeY] = 1; // Значение 1 указывает воду
+                field[objX][objY] = (int) obj; 
             }
         }
-    }
 
-    void GenerateWideGrass(int[][] field, float grassProbability)
-    {
-        for (int x = 0; x < field.Length; x++)
-        {
-            for (int y = 0; y < field[x].Length; y++)
-            {
-                // Проверяем, чтобы деревья генерировались только на траве
-                if (field[x][y] == 0 && UnityEngine.Random.Range(0f, 1f) < grassProbability)
-                {
-                    field[x][y] = 2; // Значение 2 указывает дерево
-                }
-            }
-        }
     }
 
     void GenerateAccess(int[][] field) {
@@ -161,36 +148,19 @@ void GeneratePath(int[][] field)
         {
             for (int y = 0; y < field[x].Length; y++)
             {
-                // Проверяем, чтобы деревья генерировались только на траве
                 if (field[x][y] == 3)
                 {
-                    if (x > 0 && x < width - 1 && y > 0 && y < height - 1) {
-                       for (int i = x - 1; i <= x+1; i++) {
-                           for (int k = y - 1; k <= y+1; k++) {
-                               if(field[i][k] == 0) {
-                                   field[i][k] = 4;
-                               } 
-                           }
+                    for (int i = x - 1; i <= x+1; i++) {
+                        for (int k = y - 1; k <= y+1; k++) {
+                            if (i >= 0 && i <= width - 1 && k >= 0 && k <= height - 1) {
+                                if(field[i][k] == 0) {
+                                    field[i][k] = 5;
+                                } 
+                            }
                         } 
                     }
                 }
             }
         }
     }
-
-    void GenerateTrees(int[][] field, int numberOfTrees)
-    {
-        for (int i = 0; i < numberOfTrees; i++)
-        {
-            int treeX = UnityEngine.Random.Range(0, field.Length);
-            int treeY = UnityEngine.Random.Range(0, field[0].Length);
-
-            // Проверяем, чтобы дерево не накладывалось на путь или другие объекты
-            if (field[treeX][treeY] == 0) 
-            {
-                field[treeX][treeY] = 5; // Значение 1 указывает воду
-            }
-        }
-    }
-
 }
