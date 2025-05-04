@@ -2,39 +2,37 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-enum MapObj {Grass, Water, WideGrass, Path, Trees}
+
+enum MapObj {Grass, Cross, Access, Path}
+
 public class MapGenerator : MonoBehaviour 
 {
     
     public Sprite pathTile;    // Префаб тайла пути
     public Sprite grassTile;   // Префаб тайла травы
-    public Sprite waterTile;   // Префаб тайла воды
-    public Sprite wideGrassTile;    // Префаб тайла дерева
-    public Sprite treesTile;
+    public Sprite crossTile;
     public int width = 12;           // Ширина карты
     public int height = 20;          // Высота карты
 
     void Awake()
     {
-        int[][] field = GenerateField();
+        MapObj[][] field = GenerateField();
         GeneratePath(field);
-        GenerateMapObjects(field, MapObj.Water, 40);
-        GenerateMapObjects(field, MapObj.WideGrass, 40);
-        GenerateMapObjects(field, MapObj.Trees, 40);
+        GenerateMapObjects(field, MapObj.Cross, 40);
         GenerateAccess(field);
         DrawField(field);
     }
 
-    int[][] GenerateField(){
+    MapObj[][] GenerateField(){
         
-        int[][] field = new int[height][];
+        MapObj[][] field = new MapObj[height][];
         for(int i = 0; i < height; i++){
-            field[i] = new int[width];
+            field[i] = new MapObj[width];
         }
         return field;
     }
 
-    void DrawField(int[][] field)
+    void DrawField(MapObj[][] field)
     {
         for (int x = 0; x < field.Length; x++) // Начинаем с 1
         {
@@ -47,34 +45,26 @@ public class MapGenerator : MonoBehaviour
                 // Создание нового объекта и добавление SpriteRenderer
                 GameObject tile;
                 switch (field[x][y]){
-                    case 1:
-                        tile = new GameObject($"Water_Tile_{x}_{y}");
-                        tile.AddComponent<SpriteRenderer>().sprite = waterTile;
-                        break;
-                    case 2:
-                        tile = new GameObject($"Wide_Grass_Tile_{x}_{y}");
-                        tile.AddComponent<SpriteRenderer>().sprite = wideGrassTile;
-                        break;
-                    case 3:
+                    case MapObj.Path:
                         tile = new GameObject($"Path_Tile_{x}_{y}");
                         tile.AddComponent<SpriteRenderer>().sprite = pathTile;
                         break;
-                    case 4:
+                    case MapObj.Cross:
                         tile = new GameObject($"Grass_Tile_{x}_{y}");
                         tile.AddComponent<SpriteRenderer>().sprite = grassTile;
 
-                        GameObject tree = new GameObject($"Trees_Tile_{x}_{y}");
-                        tree.AddComponent<SpriteRenderer>().sprite = treesTile;
-                        tree.GetComponent<SpriteRenderer>().sortingOrder = 1;
-                        tree.transform.position = new Vector2(x, y+0.3f);
+                        GameObject cross = new GameObject($"Cross_Tile_{x}_{y}");
+                        cross.AddComponent<SpriteRenderer>().sprite = crossTile;
+                        cross.GetComponent<SpriteRenderer>().sortingOrder = 1;
+                        cross.transform.position = new Vector2(x, y+0.3f);
                         break;
-                    case 5:
+                    case MapObj.Access:
                         tile = new GameObject($"Access_Tile_{x}_{y}");
                         tile.AddComponent<SpriteRenderer>().sprite = grassTile;
                         tile.GetComponent<SpriteRenderer>().color = new Color(0.7f, 0.7f, 0.7f);
                         break;
                     default:
-                    case 0:
+                    case MapObj.Grass:
                         tile = new GameObject($"Grass_Tile_{x}_{y}");
                         tile.AddComponent<SpriteRenderer>().sprite = grassTile; 
                         break;
@@ -89,14 +79,14 @@ public class MapGenerator : MonoBehaviour
         }  
     }
 
-void GeneratePath(int[][] field)
+void GeneratePath(MapObj[][] field)
 {
     int currentX = UnityEngine.Random.Range(0, width);; // Начальная точка по X
     int currentY = 0; // Начальная точка по Y
 
-    field[currentY][currentX] = 3; // Указываем, что эта клетка — часть пути
+    field[currentY][currentX] = MapObj.Path; // Указываем, что эта клетка — часть пути
     currentY++;
-    field[currentY][currentX] = 3;
+    field[currentY][currentX] = MapObj.Path;
     while (currentY < height-1)
     {
         int direction = UnityEngine.Random.Range(0, 3);
@@ -108,7 +98,7 @@ void GeneratePath(int[][] field)
                 break;
 
             case 1:
-                if(currentX+1 < width && field[currentY-1][currentX+1] != 3 && field[currentY+1][currentX+1] != 3 &&  field[currentY][currentX+1] != 3){
+                if(currentX+1 < width && field[currentY-1][currentX+1] != MapObj.Path && field[currentY+1][currentX+1] != MapObj.Path &&  field[currentY][currentX+1] != MapObj.Path){
                     currentX++;
                 } else {
                     currentY++;
@@ -116,7 +106,7 @@ void GeneratePath(int[][] field)
                 break;
 
             case 2:
-                if(currentX-1 >= 0 && field[currentY-1][currentX-1] != 3 && field[currentY+1][currentX-1] != 3 &&  field[currentY][currentX-1] != 3){
+                if(currentX-1 >= 0 && field[currentY-1][currentX-1] != MapObj.Path && field[currentY+1][currentX-1] != MapObj.Path &&  field[currentY][currentX-1] != MapObj.Path){
                     currentX--;
                 } else {
                     currentY++;
@@ -124,40 +114,40 @@ void GeneratePath(int[][] field)
                 break;
         }
 
-        field[currentY][currentX] = 3;
+        field[currentY][currentX] = MapObj.Path;
     }
 }
 
-    void GenerateMapObjects(int[][] field, MapObj obj, int numberOfObj){
+    void GenerateMapObjects(MapObj[][] field, MapObj obj, int numberOfObj){
 
         for (int i = 0; i < numberOfObj; i++)
         {
             int objX = UnityEngine.Random.Range(0, field.Length);
             int objY = UnityEngine.Random.Range(0, field[0].Length);
 
-            if (field[objX][objY] == 0) 
+            if (field[objX][objY] == MapObj.Grass) 
             {
-                field[objX][objY] = (int) obj; 
+                field[objX][objY] = obj; 
             }
         }
 
     }
 
-    void GenerateAccess(int[][] field) {
+    void GenerateAccess(MapObj[][] field) {
         Debug.Log(field.Length + " " + field[0].Length);
 
         for (int x = 0; x < height; x++)
         {
             for (int y = 0; y < width; y++)
             {
-                if (field[x][y] == 3)
+                if (field[x][y] == MapObj.Path)
                 {
                     for (int i = x - 1; i <= x+1; i++) {
                         for (int k = y - 1; k <= y+1; k++) {
                             if (i >= 0 && i < height && k >= 0 && k < width) {
                                 Debug.Log(i + " " + k);
-                                if(field[i][k] == 0) { // Используем правильный порядок индексов
-                                    field[i][k] = 5;
+                                if(field[i][k] == MapObj.Grass) { // Используем правильный порядок индексов
+                                    field[i][k] = MapObj.Access;
                                 } 
                             }
                         } 
