@@ -11,7 +11,7 @@ public class MapGenerator : MonoBehaviour
     public Sprite waterTile;   // Префаб тайла воды
     public Sprite wideGrassTile;    // Префаб тайла дерева
     public Sprite treesTile;
-    public int width = 20;           // Ширина карты
+    public int width = 12;           // Ширина карты
     public int height = 20;          // Высота карты
 
     void Awake()
@@ -41,8 +41,8 @@ public class MapGenerator : MonoBehaviour
             for (int y = 0; y < field[x].Length; y++) // Начинаем с 1
             {
                 // Изометрические преобразования
-                float isoX = (x - y) * 0.5f;
-                float isoY = (x + y) * 0.25f;
+                // float isoX = (x - y) * 0.5f;
+                // float isoY = (x + y) * 0.25f;
 
                 // Создание нового объекта и добавление SpriteRenderer
                 GameObject tile;
@@ -65,8 +65,8 @@ public class MapGenerator : MonoBehaviour
 
                         GameObject tree = new GameObject($"Trees_Tile_{x}_{y}");
                         tree.AddComponent<SpriteRenderer>().sprite = treesTile;
-                        tree.GetComponent<SpriteRenderer>().sortingOrder = -(x + y) + 1;
-                        tree.transform.position = new Vector2(isoX, isoY + 0.3f);
+                        tree.GetComponent<SpriteRenderer>().sortingOrder = 1;
+                        tree.transform.position = new Vector2(x, y+0.3f);
                         break;
                     case 5:
                         tile = new GameObject($"Access_Tile_{x}_{y}");
@@ -81,10 +81,10 @@ public class MapGenerator : MonoBehaviour
                 }
 
                 // Устанавливаем позицию
-                tile.transform.position = new Vector2(isoX, isoY);
+                tile.transform.position = new Vector2(x, y);
 
                 // Если нужна сортировка слоёв: добавляем Sorting Layer
-                tile.GetComponent<SpriteRenderer>().sortingOrder = -(x + y); // Упрощение видимости
+                // tile.GetComponent<SpriteRenderer>().sortingOrder = -(x + y); // Упрощение видимости
             }
         }  
     }
@@ -144,16 +144,19 @@ void GeneratePath(int[][] field)
     }
 
     void GenerateAccess(int[][] field) {
-        for (int x = 0; x < field.Length; x++)
+        Debug.Log(field.Length + " " + field[0].Length);
+
+        for (int x = 0; x < height; x++)
         {
-            for (int y = 0; y < field[x].Length; y++)
+            for (int y = 0; y < width; y++)
             {
                 if (field[x][y] == 3)
                 {
                     for (int i = x - 1; i <= x+1; i++) {
                         for (int k = y - 1; k <= y+1; k++) {
-                            if (i >= 0 && i <= width - 1 && k >= 0 && k <= height - 1) {
-                                if(field[i][k] == 0) {
+                            if (i >= 0 && i < height && k >= 0 && k < width) {
+                                Debug.Log(i + " " + k);
+                                if(field[i][k] == 0) { // Используем правильный порядок индексов
                                     field[i][k] = 5;
                                 } 
                             }

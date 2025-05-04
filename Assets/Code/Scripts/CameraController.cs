@@ -4,11 +4,11 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     [HideInInspector] Camera mainCamera;
-    [HideInInspector] int width;
+    [HideInInspector] float centerX;
+    [HideInInspector] float centerY;
 
     void PositionCamera(){
-        float centerX = 0;
-        float centerY = width * 0.25f;
+
          
         mainCamera.transform.position = new Vector2(centerX, centerY);
         mainCamera.GetComponent<Camera>().nearClipPlane = 0f;
@@ -41,12 +41,14 @@ public class CameraController : MonoBehaviour
             newCamPosY = mainCamera.transform.position.y - 0.05f * mousePositionYDelta;
         }
 
-        mainCamera.transform.position = new Vector2(Math.Clamp(newCamPosX, -10, 10), Math.Clamp(newCamPosY, 0, 10)); 
+        mainCamera.transform.position = new Vector2(Math.Clamp(newCamPosX, centerX - GameObject.FindWithTag("Map").GetComponent<MapGenerator>().height/2, centerX + GameObject.FindWithTag("Map").GetComponent<MapGenerator>().height/2), 
+                                                    Math.Clamp(newCamPosY, centerY - GameObject.FindWithTag("Map").GetComponent<MapGenerator>().width/2, centerY + GameObject.FindWithTag("Map").GetComponent<MapGenerator>().width/2)); 
     }
 
     void Awake(){
         mainCamera = Camera.main;
-        width = GameObject.FindWithTag("Map").GetComponent<MapGenerator>().width;
+        centerX = GameObject.FindWithTag("Map").GetComponent<MapGenerator>().height * 0.5f;
+        centerY = GameObject.FindWithTag("Map").GetComponent<MapGenerator>().width * 0.5f;
     }
     void Start()
     {
