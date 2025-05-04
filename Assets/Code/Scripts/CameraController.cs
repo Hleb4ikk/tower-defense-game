@@ -33,11 +33,11 @@ public class CameraController : MonoBehaviour
         float newCamPosX = mainCamera.transform.position.x;
         float newCamPosY = mainCamera.transform.position.y;
 
-        if(mousePositionXDelta != 0 && Input.GetMouseButton(0)){
+        if(mousePositionXDelta != 0 && Input.GetMouseButton(2)){
             newCamPosX = mainCamera.transform.position.x - 0.05f * mousePositionXDelta;
         }
 
-        if(mousePositionYDelta != 0 && Input.GetMouseButton(0)){
+        if(mousePositionYDelta != 0 && Input.GetMouseButton(2)){
             newCamPosY = mainCamera.transform.position.y - 0.05f * mousePositionYDelta;
         }
 
@@ -47,8 +47,8 @@ public class CameraController : MonoBehaviour
 
     void Awake(){
         mainCamera = Camera.main;
-        centerX = GameObject.FindWithTag("Map").GetComponent<MapGenerator>().height * 0.5f;
-        centerY = GameObject.FindWithTag("Map").GetComponent<MapGenerator>().width * 0.5f;
+        centerX = GameObject.FindWithTag("Map").GetComponent<MapGenerator>().width * 0.5f;
+        centerY = GameObject.FindWithTag("Map").GetComponent<MapGenerator>().height * 0.5f;
     }
     void Start()
     {
