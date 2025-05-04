@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-enum MapObj {Grass, Cross, Access, Path}
+public enum MapObj {Grass, Cross, Access, Path}
 
 public class MapGenerator : MonoBehaviour 
 {
-    
-    public Sprite pathTile;    // Префаб тайла пути
-    public Sprite grassTile;   // Префаб тайла травы
+    [HideInInspector] 
+    public MapObj[][] field;
+    public Sprite pathTile;
+    public Sprite grassTile;
     public Sprite crossTile;
-    public int width = 12;           // Ширина карты
-    public int height = 20;          // Высота карты
-
+    public int width = 12;
+    public int height = 20;
+    
+    [HideInInspector] // Можно убрать HideInInspector, если хочешь видеть в инспекторе для отладки
+    public int startX;
+    
+    [HideInInspector] // Можно убрать HideInInspector, если хочешь видеть в инспекторе для отладки
+    public int startY;
     void Awake()
     {
         MapObj[][] field = GenerateField();
@@ -25,7 +31,7 @@ public class MapGenerator : MonoBehaviour
 
     MapObj[][] GenerateField(){
         
-        MapObj[][] field = new MapObj[height][];
+        field = new MapObj[height][];
         for(int i = 0; i < height; i++){
             field[i] = new MapObj[width];
         }
@@ -38,17 +44,13 @@ public class MapGenerator : MonoBehaviour
         {
             for (int y = 0; y < field[x].Length; y++) // Начинаем с 1
             {
-                // Изометрические преобразования
-                // float isoX = (x - y) * 0.5f;
-                // float isoY = (x + y) * 0.25f;
-
-                // Создание нового объекта и добавление SpriteRenderer
                 GameObject tile;
                 switch (field[x][y]){
                     case MapObj.Path:
                         tile = new GameObject($"Path_Tile_{x}_{y}");
                         tile.AddComponent<SpriteRenderer>().sprite = pathTile;
                         break;
+
                     case MapObj.Cross:
                         tile = new GameObject($"Grass_Tile_{x}_{y}");
                         tile.AddComponent<SpriteRenderer>().sprite = grassTile;
@@ -58,23 +60,21 @@ public class MapGenerator : MonoBehaviour
                         cross.GetComponent<SpriteRenderer>().sortingOrder = 1;
                         cross.transform.position = new Vector2(x, y+0.3f);
                         break;
+
                     case MapObj.Access:
                         tile = new GameObject($"Access_Tile_{x}_{y}");
                         tile.AddComponent<SpriteRenderer>().sprite = grassTile;
                         tile.GetComponent<SpriteRenderer>().color = new Color(0.7f, 0.7f, 0.7f);
                         break;
+
                     default:
                     case MapObj.Grass:
                         tile = new GameObject($"Grass_Tile_{x}_{y}");
                         tile.AddComponent<SpriteRenderer>().sprite = grassTile; 
                         break;
+
                 }
-
-                // Устанавливаем позицию
                 tile.transform.position = new Vector2(x, y);
-
-                // Если нужна сортировка слоёв: добавляем Sorting Layer
-                // tile.GetComponent<SpriteRenderer>().sortingOrder = -(x + y); // Упрощение видимости
             }
         }  
     }
@@ -83,6 +83,9 @@ void GeneratePath(MapObj[][] field)
 {
     int currentX = UnityEngine.Random.Range(0, width);; // Начальная точка по X
     int currentY = 0; // Начальная точка по Y
+
+    startX = currentX;
+    startY = currentY;
 
     field[currentY][currentX] = MapObj.Path; // Указываем, что эта клетка — часть пути
     currentY++;
